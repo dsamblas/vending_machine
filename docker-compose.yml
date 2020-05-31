@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/${APP_ENV}/php/Dockerfile
+    restart: on-failure
+    user: ${LOCAL_USER}
+

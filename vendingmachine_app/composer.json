@@ -1,0 +1,43 @@
+{
+    "require": {
+        "symfony/console": "^4.4",
+        "symfony/config": "^4.4",
+        "symfony/http-kernel": "^4.4",
+        "symfony/dependency-injection": "^4.4",
+        "symfony/yaml": "^4.4",
+        "symfony/flex": "^1.7",
+        "symfony/dotenv": "^4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/app"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "behat/behat": "^3.6",
+        "behat/symfony2-extension": "^2.1",
+        "symfony/phpunit-bridge": "^4.4"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "4.4.*"
+        },
+        "src-dir": "src/app",
+        "config-dir": "src/../config",
+        "bin-dir": "src/../bin",
+        "var-dir": "src/../var",
+        "public-dir": "src/../public"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
+    }
+}

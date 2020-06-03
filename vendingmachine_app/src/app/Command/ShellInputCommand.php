@@ -3,8 +3,10 @@
 
 namespace App\Command;
 
+use App\Infrastructure\Output\SystemOutputPrintService;
 use App\VendingMachine\Coin;
 use App\VendingMachine\Command\InsertCoinCommand;
+use App\VendingMachine\Command\ReturnInboxCommand;
 use App\VendingMachine\Command\SetStatusCommand;
 use App\VendingMachine\Status\StatusFactory;
 use Domain\Currency;
@@ -23,18 +25,19 @@ class ShellInputCommand extends Command
 
     private MessageBusInterface $messageBus;
     private Currency $currency;
+    private SystemOutputPrintService $printService;
 
-    public function __construct(MessageBusInterface $messageBus)
+    public function __construct(MessageBusInterface $messageBus, SystemOutputPrintService $printService)
     {
         parent::__construct(self::$defaultName);
         $this->messageBus = $messageBus;
+        $this->printService = $printService;
     }
 
 
     protected function configure()
     {
         $this
-            // ...
             ->addArgument(
                 'arguments',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
@@ -59,6 +62,7 @@ class ShellInputCommand extends Command
             $this->messageBus->dispatch($message);
         }
 
+        $this->printService->print($output);
         return 0;
     }
 
@@ -76,6 +80,10 @@ class ShellInputCommand extends Command
 
         $messages = [];
         foreach ($args as $arg) {
+            switch ($arg) {
+                case 'RETURN-COIN':
+                    $messages[] = new ReturnInboxCommand();
+            }
             if (is_numeric($arg)) {
                 $messages[] = new InsertCoinCommand(
                     new Coin(

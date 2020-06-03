@@ -25,6 +25,6 @@ class VendingMachine implements VendingMachineInterface
 
     public function status(): Status
     {
-        return $this->status();
+        return $this->status;
     }
 }

@@ -17,7 +17,7 @@ class JsonFileStatusLoader implements Loader
         $this->repository = $repository;
     }
 
-    public function __invoke(): Status
+    public function load(): Status
     {
         return $this->repository->get();
     }

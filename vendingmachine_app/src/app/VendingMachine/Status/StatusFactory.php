@@ -11,7 +11,7 @@ use App\VendingMachine\ItemStore;
 use App\VendingMachine\Wallet;
 use Domain\Coin\Slot as CoinSlot;
 use Domain\Currency;
-use Domain\Item\Slot;
+use Domain\Item\Slot as ItemSlot;
 use Domain\Money;
 use InvalidArgumentException;
 
@@ -19,8 +19,37 @@ class StatusFactory
 {
     public static function fromArray(array $arr): Status
     {
-        echo "geted from file" . PHP_EOL;
-        var_export($arr);
+
+        $inboxcoinSlots = [];
+        foreach ($arr['input']['coins'] as $coinLabel => $coinSlot) {
+            $inboxcoinSlots[] = new CoinSlot(new Coin($coinLabel, $coinSlot['value'], new Currency($arr['input']['currency'])), $coinLabel, $coinSlot['qty']);
+        }
+        $exchangeCoinSlots = [];
+        foreach ($arr['exchange']['coins'] as $coinLabel => $coinSlot) {
+            $exchangeCoinSlots[] = new CoinSlot(new Coin($coinLabel, $coinSlot['value'], new Currency($arr['exchange']['currency'])), $coinLabel, $coinSlot['qty']);
+        }
+        $itemSlots = [];
+        foreach ($arr['stock'] as $itemName => $itemSlot) {
+            $itemSlots[] = new ItemSlot(
+                new Item(
+                    $itemName,
+                    new Money(
+                        $itemSlot['unitPrice'],
+                        new Currency($arr['currency'])
+                    )
+                ),
+                $itemName,
+                $itemSlot['qty']
+            );
+        }
+
+        return new Status(
+            $arr['machineId'],
+            new Wallet(new CoinCollection($inboxcoinSlots, new Currency($arr['input']['currency']))),
+            new Wallet(new CoinCollection($exchangeCoinSlots, new Currency($arr['exchange']['currency']))),
+            new ItemStore($itemSlots),
+            new Currency($arr['currency'])
+        );
 
     }
 
@@ -47,7 +76,7 @@ class StatusFactory
                     );
                     break;
                 case "item":
-                    $itemSlots[(string)$statusTokenParts[1]] = new Slot(
+                    $itemSlots[(string)$statusTokenParts[1]] = new ItemSlot(
                         new Item(
                             (string)$statusTokenParts[1],
                             new Money((float)$statusTokenParts[3], $currency)

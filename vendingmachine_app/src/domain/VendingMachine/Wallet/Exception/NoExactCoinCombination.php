@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Domain\VendinMachine\Wallet\Exception;
+namespace Domain\VendingMachine\Wallet\Exception;
 
 use Exception;
 

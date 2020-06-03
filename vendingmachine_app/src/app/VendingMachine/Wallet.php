@@ -6,12 +6,14 @@ namespace App\VendingMachine;
 
 use Domain\Coin as CoinInterface;
 use Domain\Coin\CoinCollection as CoinCollectionInterface;
+use Domain\Coin\Slot;
 use Domain\Currency;
 use Domain\Currency\Exception\CurrencyMismatch;
 use Domain\Money as MoneyInterface;
 use Domain\Money\Exception\NotEnoughMoney;
 use Domain\VendingMachine\Wallet as WalletInterface;
-use Domain\VendinMachine\Wallet\Exception\NoExactCoinCombination;
+use Domain\VendingMachine\Wallet\Exception\NoExactCoinCombination;
+
 
 class Wallet implements WalletInterface
 {
@@ -65,6 +67,7 @@ class Wallet implements WalletInterface
             $this->wallet->remove(new Coin($coinLabel, $coinSlot['value'], $this->currency()), $coinSlot['qty']);
 
         }
+
         return $coins;
     }
 
@@ -82,21 +85,30 @@ class Wallet implements WalletInterface
         $amountLeft = $amount;
         $result = [];
         foreach ($coinsSortedByValue as $coinLabel => $coinSlot) {
-            if ($coinSlot['value'] <= $amountLeft) {
-                while ($coinSlot['qty'] > 0 && $coinSlot['value'] <= $amountLeft) {
+            if (round($amountLeft, 2) >= round($coinSlot['value'], 2)) {
+                while ($coinSlot['qty'] > 0 && round($coinSlot['value'], 2) <= round($amountLeft, 2)) {
                     $amountLeft -= $coinSlot['value'];
                     $coinSlot['qty']--;
                     $result[$coinLabel]['value'] = $coinSlot['value'];
+                    if (empty($result[$coinLabel]['qty'])) {
+                        $result[$coinLabel]['qty'] = 0;
+                    }
                     $result[$coinLabel]['qty']++;
                 }
             }
         }
 
-        if (empty($result) || 0 < $amountLeft) {
+        $resultSlots = [];
+        foreach ($result as $coinLabel => $slot) {
+            $resultSlots[] = new Slot(new Coin($coinLabel, $slot['value'], $this->currency()), $coinLabel, $slot['qty']);
+        }
+        $collectionResult = new CoinCollection($resultSlots, $this->currency());
+
+        if (empty($result) || 0 < $amount - $collectionResult->total()->amount()) {
             return null;
         }
 
-        return new CoinCollection($result, $this->currency());
+        return $collectionResult;
 
 
     }

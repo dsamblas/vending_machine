@@ -4,11 +4,7 @@
 namespace App\Command;
 
 use App\Infrastructure\Output\SystemOutputPrintService;
-use App\VendingMachine\Coin;
-use App\VendingMachine\Command\InsertCoinCommand;
-use App\VendingMachine\Command\ReturnInboxCommand;
-use App\VendingMachine\Command\SetStatusCommand;
-use App\VendingMachine\Status\StatusFactory;
+use App\VendingMachine\Message\MessageFactory;
 use Domain\Currency;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -26,12 +22,15 @@ class ShellInputCommand extends Command
     private MessageBusInterface $messageBus;
     private Currency $currency;
     private SystemOutputPrintService $printService;
+    private MessageFactory $messageFactory;
 
-    public function __construct(MessageBusInterface $messageBus, SystemOutputPrintService $printService)
+    public function __construct(MessageBusInterface $messageBus, SystemOutputPrintService $printService, MessageFactory $messageFactory)
     {
         parent::__construct(self::$defaultName);
         $this->messageBus = $messageBus;
         $this->printService = $printService;
+        $this->messageFactory = $messageFactory;
+
     }
 
 
@@ -56,7 +55,7 @@ class ShellInputCommand extends Command
             $cleanArguments[] = $this->cleanArgument($arg);
         }
 
-        $messages = $this->messageFactory($cleanArguments);
+        $messages = $this->messageFactory->buildFromShellInputCommandArgs($this->currency, $cleanArguments);
 
         foreach ($messages as $message) {
             $this->messageBus->dispatch($message);
@@ -69,33 +68,6 @@ class ShellInputCommand extends Command
     private function cleanArgument(string $arg): string
     {
         return trim($arg, ' ,');
-
-    }
-
-    private function messageFactory(array $args): array
-    {
-        if ($args[0] === 'SERVICE') {
-            return [new SetStatusCommand(StatusFactory::fromArgs($args))];
-        }
-
-        $messages = [];
-        foreach ($args as $arg) {
-            switch ($arg) {
-                case 'RETURN-COIN':
-                    $messages[] = new ReturnInboxCommand();
-            }
-            if (is_numeric($arg)) {
-                $messages[] = new InsertCoinCommand(
-                    new Coin(
-                        implode('_', ['coin', $arg, $this->currency->code()]),
-                        (float)$arg,
-                        $this->currency
-                    )
-                );
-            }
-        }
-
-        return $messages;
 
     }
 

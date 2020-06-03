@@ -24,11 +24,13 @@ class ItemStore implements Store
     public function __construct(array $slots = [])
     {
         $this->slots = $slots;
+
     }
 
 
     public function buyItem(string $slotCode, Money $money): Item
     {
+
         if (false == isset($this->slots[$slotCode])) {
             throw new InvalidArgumentException();
         }

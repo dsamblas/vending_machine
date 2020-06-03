@@ -12,16 +12,18 @@ use Domain\VendingMachine\Status\StatusRepository;
 class JsonFileStatusRepository implements StatusRepository
 {
     private string $path;
+    private StatusFactory $statusFactory;
 
-    public function __construct(string $path)
+    public function __construct(string $path, StatusFactory $statusFactory)
     {
         $this->path = $path;
+        $this->statusFactory = $statusFactory;
     }
 
 
     public function get(): Status
     {
-        return StatusFactory::fromArray(json_decode(file_get_contents($this->path), true));
+        return $this->statusFactory->fromArray(json_decode(file_get_contents($this->path), true));
     }
 
     public function save(StatusInterface $status)

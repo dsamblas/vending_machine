@@ -17,7 +17,7 @@ use InvalidArgumentException;
 
 class StatusFactory
 {
-    public static function fromArray(array $arr): Status
+    public function fromArray(array $arr): Status
     {
 
         $inboxcoinSlots = [];
@@ -30,7 +30,7 @@ class StatusFactory
         }
         $itemSlots = [];
         foreach ($arr['stock'] as $itemName => $itemSlot) {
-            $itemSlots[] = new ItemSlot(
+            $itemSlots[$itemName] = new ItemSlot(
                 new Item(
                     $itemName,
                     new Money(

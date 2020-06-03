@@ -2,10 +2,11 @@
 
 namespace Domain\VendingMachine\Command;
 
-use Domain\Item\Item;
+use Domain\Item;
+use Domain\VendingMachine\Command;
 use Domain\VendingMachine\Wallet;
 
-interface BuyItemCommand
+interface BuyItemCommand extends Command
 {
     public function item(): Item;
 

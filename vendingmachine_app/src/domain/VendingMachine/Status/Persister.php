@@ -4,7 +4,10 @@
 namespace Domain\VendingMachine\Status;
 
 
-interface Persiser
+use Domain\VendingMachine\Status;
+
+interface Persister
 {
+    public function persist(Status $status): void;
 
 }

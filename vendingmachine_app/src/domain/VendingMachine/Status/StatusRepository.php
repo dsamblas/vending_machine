@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Domain\VendingMachine\Status\Repository;
+namespace Domain\VendingMachine\Status;
 
 
 use Domain\VendingMachine\Status;

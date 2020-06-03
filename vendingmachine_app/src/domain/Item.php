@@ -1,9 +1,7 @@
 <?php
 
 
-namespace Domain\Item;
-
-use Domain\Money;
+namespace Domain;
 
 interface Item
 {

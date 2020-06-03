@@ -17,6 +17,8 @@ interface Status
 
     public function currency(): Currency;
 
+    public function machineId(): string;
+
     public function toArray(): array;
 
 }

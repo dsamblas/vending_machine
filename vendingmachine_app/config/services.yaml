@@ -23,5 +23,9 @@ services:
         resource: '../src/app/Controller'
         tags: ['controller.service_arguments']
 
+    App\Infrastructure\File\Repository\JsonFileStatusRepository:
+        arguments:
+            - '/usr/src/app/vendingmachinestatus.json'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
